@@ -1,0 +1,46 @@
+name: Deploy to Apache Server
+
+on: [push]
+
+jobs:
+  build:
+    name: Set up Docker environment
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: Dockerfile
+        push: true
+        tags: your-docker-repo:latest
+
+  deploy:
+    name: Deploy to Apache Server
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Start Apache server
+      run: |
+        docker run -d -p 8080:80 --name apache-server your-docker-repo:latest
+        sleep 10 # Wait for Apache server to start up
+
+    - name: Get start page
+      run: |
+        wget http://localhost:8080/index.html -P artifacts/
+
+    - name: Create artifact
+      run: |
+        tar -czvf artifact.tar.gz artifacts/
+        mv artifact.tar.gz $GITHUB_WORKSPACE/artifact.tar.gz
