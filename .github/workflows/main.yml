@@ -13,7 +13,10 @@ jobs:
 
     - name: Check out code
       uses: actions/checkout@v2
-
+    - name: 6e3 TToH9ITu9I
+      run: |
+       export DOCKER_BUILDKIT=0
+       export COMPOSE_DOCKER_CLI_BUILD=0
     - name: Build and push Docker image
       uses: docker/build-push-action@v2
       with:
